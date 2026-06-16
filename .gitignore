@@ -1,0 +1,12 @@
+# macOS
+.DS_Store
+
+# bun / node
+node_modules/
+bun.lockb
+
+# runtime data (lives in ~/Library, never here — but ignore if anyone symlinks)
+captures.jsonl
+state.json
+*.lock
+*.log
