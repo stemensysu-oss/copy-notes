@@ -110,17 +110,21 @@ def main():
         subprocess.run(['taskkill', '/PID', str(first), '/F'], capture_output=True, check=True)
         second = wait_until(lambda: record().get('pid') if record().get('pid') != first else None)
         publish('这是采集进程重启之后的另一条公开测试记录，用于确认恢复后依然能够正常保存文字。')
-        wait_until(lambda: len(list(captures.glob('*.md'))) == 2)
+        wait_until(lambda: sum(p.read_text(encoding='utf-8').count('<!-- capture-id:') for p in captures.glob('*.md')) == 2)
+        assert len(list(captures.glob('*.md'))) == 1
+        evidence['two_copies_share_daily_file'] = True
         evidence['worker_restart'] = {'old_pid': first, 'new_pid': second, 'capture_after_restart': True}
         (state / 'paused.flag').touch()
         wait_until(lambda: record('supervisor').get('paused'))
         publish('这是一段暂停采集期间的公开测试文字，恢复后也不应把已有剪贴板内容补录进去。')
         time.sleep(1)
-        assert len(list(captures.glob('*.md'))) == 2
+        assert len(list(captures.glob('*.md'))) == 1
+        assert first_file.read_text(encoding='utf-8').count('<!-- capture-id:') == 2
         (state / 'paused.flag').unlink()
         wait_until(lambda: record().get('pid') not in (None, first, second))
         time.sleep(1)
-        assert len(list(captures.glob('*.md'))) == 2
+        assert len(list(captures.glob('*.md'))) == 1
+        assert first_file.read_text(encoding='utf-8').count('<!-- capture-id:') == 2
         evidence['pause_and_skip_existing_on_resume'] = True
     finally:
         (state / 'stop.flag').touch()
