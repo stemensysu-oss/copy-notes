@@ -1,5 +1,69 @@
 # copy-notes
 
+## This fork: Windows journal + conservative privacy filtering
+
+Forked from [lijigang/copy-notes](https://github.com/lijigang/copy-notes); original MIT license retained.
+
+- **macOS still writes to Apple Notes.** The Bun/AppleScript implementation remains below. A shared strict text policy now runs before either Notes or its local backup is written. AppKit checks concealed/transient formats and the frontmost app as an additional privacy veto; clipboard generation is rechecked before capture. This macOS change requires validation on a Mac; Windows tests do not establish macOS runtime compatibility.
+- **Windows writes local Markdown** to a directory selected during installation, one immutable file per accepted copy. It does not write Apple Notes and makes no network requests. A sync folder may independently sync those notes.
+- **Text only.** Images and files are intentionally excluded in this version.
+- **Automatic startup and recovery:** per-user interactive login task, a watchdog which restarts the worker, job-object cleanup, and a recurring task trigger to recover the watchdog. No admin account or stored password is needed. Clipboard access starts after the user signs in, not at the pre-login boot screen.
+
+### Strict privacy policy (read before enabling)
+
+The default deliberately skips short text, standalone identifiers/names, email addresses, account/password labels, common key/token shapes, long opaque strings, digit sequences and URLs containing query/fragment data. Content is Unicode-normalized **for checking only**; accepted original text is preserved. Windows additionally checks clipboard protection formats, owner/foreground application names and sensitive window titles. Unknown source or unreadable privacy metadata fails closed. Password-manager sources are excluded.
+
+Rejected text is **not saved** in notes, backup files, status files or error logs. Diagnostics contain only counters, process IDs and fixed reason codes. The rule data is in `privacy-rules.json` and is shared by both platforms.
+
+**This is conservative filtering, not a guarantee that arbitrary credentials can be recognized.** A password/passphrase embedded in otherwise ordinary prose without a label can still look like legitimate text. Generic clipboard APIs do not reliably identify a username field or a browser login page. The strict defaults trade missed ordinary text for fewer accidental captures. Pause capture before working with credentials. Do not use a clipboard journal where an absolute no-secret-capture guarantee is required. Existing upstream captures are not retroactively scrubbed.
+
+### Windows install
+
+Requires Windows 10/11 and Python 3.10+ including `pythonw.exe`; no pip dependencies.
+
+```powershell
+git clone https://github.com/stemensysu-oss/copy-notes.git
+cd copy-notes
+& .\windows\install.ps1 -OutputDirectory 'D:\YourVault\raw\journals\Win-Copy'
+```
+
+The installer copies the application to `%USERPROFILE%\Documents\WinCopy\app`, stores your private destination in `%USERPROFILE%\Documents\WinCopy\config.json`, and creates the `WinCopy` task. It uses interactive user access with limited privileges. If task registration is denied, installation is **not** complete. Do not move or remove Python while it is installed.
+
+Commands (PowerShell):
+
+```powershell
+$app = Join-Path $env:USERPROFILE 'Documents\WinCopy\app\windows\win_copy.py'
+python $app status
+python $app pause
+python $app resume
+& (Join-Path $env:USERPROFILE 'Documents\WinCopy\app\windows\uninstall.ps1')
+```
+
+Pause survives restarts; resume skips clipboard contents already present. Uninstall removes the startup task and stops its processes but preserves the program and all captured notes. To start again after uninstall, rerun the repository's installer. `stop` is an internal persistent stop flag; use pause/resume for ordinary controls.
+
+Files are named `YYYY-MM-DD_HHMMSS_<capture-id>.md`, preserving text, capture time and clipboard-owner process name. Clipboard content is fenced as literal text. No window titles, usernames, machine names, clipboard history or unsanitized exception messages are stored in diagnostics. Accepted text is kept locally in plaintext; the destination's encryption/sync settings apply.
+
+Writes flush a `.pending` file then rename it. A completed pending write is recovered on restart; an incomplete one is retained as pending and is not counted as saved. Duplicate copies within 30 seconds are suppressed. Disk failure retries in memory (up to 100 entries); a crash before a durable write can lose those unsaved entries. No guarantee of capturing every rapid clipboard replacement is made.
+
+### Validation
+
+```powershell
+python -m unittest discover -s tests -v
+node tests/privacy.test.mjs
+# Optional live clipboard test; use a new disposable work directory:
+python tests/windows_integration.py --work-dir 'D:\Scratch\WinCopy-Test'
+```
+
+Unit checks cover credential and protected-context cases, UTF-8 bytes, idempotent file commits and incomplete-write recovery. The live test uses synthetic clipboard data, checks actual Markdown output and exclusions, kills the worker to verify recovery, and checks pause/resume. It temporarily uses the clipboard; avoid copying other material while it runs. Scheduler recovery and real reboot/login must be checked separately on the target computer.
+
+Implementation references: [Windows clipboard listeners](https://learn.microsoft.com/en-us/windows/win32/dataxchg/using-the-clipboard), [privacy formats](https://learn.microsoft.com/en-us/windows/win32/dataxchg/clipboard-formats).
+
+---
+
+## Original macOS documentation
+
+The following upstream text describes the original behavior. This fork's stricter filtering takes precedence: many short/non-prose copies are intentionally skipped.
+
 **Copy text anywhere on macOS → it's automatically appended to a single note in Apple Notes.**
 
 A tiny background agent (bun + TypeScript, zero dependencies) that watches your clipboard. Whenever you copy text in any app, it appends that text — with a timestamp — to one note in the macOS Notes app (named `mylife` by default). Think of it as a frictionless "clipboard journal": everything you copy, collected in one place, searchable and synced across your devices via iCloud.

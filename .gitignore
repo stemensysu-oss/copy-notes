@@ -10,3 +10,8 @@ captures.jsonl
 state.json
 *.lock
 *.log
+__pycache__/
+*.pyc
+config.local.json
+.runtime/
+*.pending

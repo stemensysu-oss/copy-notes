@@ -1,0 +1,18 @@
+{
+  "version": 1,
+  "max_bytes": 200000,
+  "min_characters": 24,
+  "patterns": [
+    "用户名|用戶名|账号|帐号|賬號|账户|密码|密碼|口令|验证码|驗證碼|助记词|私钥|密钥",
+    "\\b(user[ _-]?name|password|passwd|pwd|passphrase|secret|token|api[ _-]?key|authorization|bearer|cookie|otp|credential|recovery[ _-]?code|seed[ _-]?phrase)\\b",
+    "\\b(user|login|account|pass|pin)\\s*[:=：]",
+    "-----BEGIN [A-Z ]*PRIVATE KEY-----",
+    "\\b(sk-[A-Za-z0-9_-]{12,}|gh[pousr]_[A-Za-z0-9]{16,}|github_pat_[A-Za-z0-9_]+|AKIA[0-9A-Z]{16}|xox[baprs]-[A-Za-z0-9-]+)\\b",
+    "[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}",
+    "https?://[^\\s]+[?#][^\\s]+",
+    "[A-Za-z0-9+/_=-]{20,}",
+    "\\b[0-9]{6,}\\b"
+  ],
+  "blocked_sources": ["1password", "keepass", "bitwarden", "lastpass", "dashlane", "keeper", "enpass", "nordpass", "credentialui", "logonui", "secrets"],
+  "blocked_titles": ["登录", "登入", "登陆", "密码", "口令", "验证码", "账户", "账号", "用户名", "凭据", "login", "log in", "sign in", "signin", "password", "credential", "authentication", "1password", "bitwarden", "keepass"]
+}

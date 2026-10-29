@@ -1,0 +1,21 @@
+[
+  {"name":"Chinese prose","text":"今天读到一段有启发的文字，希望保存下来，明天继续整理并用于个人学习。","allowed":true},
+  {"name":"English prose","text":"This is an ordinary reading excerpt. Keep it for a later review and discussion.","allowed":true},
+  {"name":"username","text":"demo_reader_42","allowed":false},
+  {"name":"Chinese name","text":"测试用户","allowed":false},
+  {"name":"simple password","text":"Spring!Demo42","allowed":false},
+  {"name":"passphrase","text":"correct horse battery staple","allowed":false},
+  {"name":"numeric code","text":"123456","allowed":false},
+  {"name":"email","text":"reader@example.invalid","allowed":false},
+  {"name":"mixed credential paragraph","text":"这是一段普通的长文字，但是包含密码：synthetic-only。因此整段内容都必须跳过。","allowed":false},
+  {"name":"account label","text":"这里提供一段足够长的说明文字。username = synthetic_user，请不要保存。","allowed":false},
+  {"name":"zero width label","text":"这是一段足够长的测试内容，其中包含 pass\u200bword: synthetic-only，应被跳过。","allowed":false},
+  {"name":"full width label","text":"这是一段足够长的测试内容，其中包含 ｐａｓｓｗｏｒｄ: synthetic-only，应被跳过。","allowed":false},
+  {"name":"identifier next to prose","text":"今天读到一段有启发的文字，希望保存下来，明天继续整理并用于个人学习。\nsynthetic_user","allowed":false},
+  {"name":"protected format","text":"This is an ordinary reading excerpt. Keep it for a later review and discussion.","context":{"concealed":true},"allowed":false},
+  {"name":"password manager","text":"This is an ordinary reading excerpt. Keep it for a later review and discussion.","context":{"source":"Bitwarden.exe"},"allowed":false},
+  {"name":"login window","text":"This is an ordinary reading excerpt. Keep it for a later review and discussion.","context":{"title":"Sign in to the service"},"allowed":false},
+  {"name":"unknown owner","text":"This is an ordinary reading excerpt. Keep it for a later review and discussion.","context":{"source":""},"allowed":false},
+  {"name":"authenticated URL","text":"Read more at https://example.invalid/doc?access=synthetic-only. This should not be saved.","allowed":false},
+  {"name":"long opaque string","text":"A long value is placed here: ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890. Skip this entire entry.","allowed":false}
+]
